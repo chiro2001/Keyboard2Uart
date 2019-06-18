@@ -3,8 +3,8 @@ from evdev import InputDevice
 from select import select
 
 
-def detect_input_key():
-    dev = InputDevice('/dev/input/event4')
+def detect_input_key(device_name):
+    dev = InputDevice('/dev/input/%s' % device_name)
     while True:
         select([dev], [], [])
         for event in dev.read():
@@ -28,4 +28,4 @@ def get_device_name():
 
 if __name__ == '__main__':
     print(get_device_name())
-    detect_input_key()
+    detect_input_key(get_device_name())
