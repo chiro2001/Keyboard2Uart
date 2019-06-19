@@ -8,7 +8,10 @@ def detect_input_key(device_name):
     while True:
         select([dev], [], [])
         for event in dev.read():
-            print("code:%s value:%s" % (event.code, event.value))
+            try:
+                print("code:%s value:%s char:%s" % (event.code, event.value, chr(event.code)))
+            except Exception as e:
+                print("code:%s value:%s char:%s" % (event.code, event.value, e))
 
 
 def get_device_name():
