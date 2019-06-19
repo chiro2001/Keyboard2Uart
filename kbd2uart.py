@@ -12,7 +12,7 @@ keycode = {"0": "", "1": "\x1b", "2": "1", "3": "2", "4": "3", "5": "4", "6": "5
         "26": "LEFTBRACE", "27": "RIGHTBRACE", "28": "\r", "29": "LEFTCTRL",
         "30": "A", "31": "S", "32": "D", "33": "F", "34": "G", "35": "H",
         "36": "J", "37": "K", "38": "L", "39": ";", "40": "'", "41": "GRAVE",
-        "42": "LEFTSHIFT", "43": "BACKSLASH", "44": "Z", "45": "X", "46": "C",
+        "42": "LEFTSHIFT", "43": "\\", "44": "Z", "45": "X", "46": "C",
         "47": "V", "48": "B", "49": "N", "50": "M", "51": ",", "52": ".", "53": "/",
         "54": "RIGHTSHIFT", "55": "KPASTERISK", "56": "LEFTALT", "57": " ", "58": "CAPSLOCK",
         "59": "F1", "60": "F2", "61": "F3", "62": "F4", "63": "F5", "64": "F6", "65": "F7",
@@ -52,10 +52,12 @@ keycode = {"0": "", "1": "\x1b", "2": "1", "3": "2", "4": "3", "5": "4", "6": "5
 com = serial.Serial('/dev/ttyS2', 115200, timeout=5)
 
 upper = False
+shifted = False
 
-shifted = {
+shift_code = {
     '`': '~', '1': '!', '2': '@', '3': '#', '4': '$', '5': '%', '6': '^', '7': '&', '8': '*',
-    '9': '(', '0': ')', '-': '_', '=': '+', '[': '{',
+    '9': '(', '0': ')', '-': '_', '=': '+', '[': '{', ']': '}', '\\': '|', ';': ':', "'": '"',
+    ',': '<', '.': '>', '/': '?'
 }
 
 
@@ -64,7 +66,7 @@ shifted = {
 
 
 def detect_input_key(device_name):
-    global upper
+    global upper, shifted
     dev = InputDevice('/dev/input/%s' % device_name)
     while True:
         select([dev], [], [])
@@ -73,25 +75,33 @@ def detect_input_key(device_name):
                 continue
             if event.code == 0:
                 continue
+            if str(event.code) not in keycode:
+                continue
+            char = keycode[str(event.code)]
+            val = event.value
+            if 'shift' in char.lower() and (val == 1 or val == 0):
+                upper = not upper
+                if val == 0:
+                    shifted = True
+                else:
+                    shifted = False
+                continue
+            if char == 'CAPSLOCK' and val == 1:
+                upper = not upper
+                continue
             print("code:%s value:%s " % (event.code, event.value), end='')
             if str(event.code) in keycode:
                 print('char:', keycode[str(event.code)])
             else:
                 print('')
                 continue
-            char = keycode[str(event.code)]
-            if 'shift' in char.lower():
-                upper = not upper
-                continue
-            if char == 'CAPSLOCK':
-                upper = not upper
-                continue
             # kbd -> uart:
             if event.value == 1 or event.value == 2:
                 if not upper:
-                    com.write(keycode[str(event.code)].lower().encode())
-                else:
-                    com.write(keycode[str(event.code)].encode())
+                    char = char.lower()
+                if shifted and char in shift_code:
+                    char = shift_code[char]
+                com.write(char.encode())
 
 
 def get_device_name():
