@@ -14,8 +14,8 @@ def detect_input_key(device_name):
         select([dev], [], [])
         for event in dev.read():
             print("code:%s value:%s " % (event.code, event.value), end='')
-            if event.code in keycode and len(keycode[event.code]) == 1:
-                print('char:', keycode[event.code])
+            if str(event.code) in keycode:
+                print('char:', keycode[str(event.code)])
             else:
                 print('')
 
@@ -38,3 +38,4 @@ def get_device_name():
 if __name__ == '__main__':
     print(get_device_name())
     detect_input_key(get_device_name())
+
