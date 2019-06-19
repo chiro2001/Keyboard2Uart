@@ -75,8 +75,10 @@ def detect_input_key(device_name):
             char = keycode[str(event.code)]
             if 'shift' in char.lower():
                 upper = not upper
+                continue
             if char == 'CAPSLOCK':
                 upper = not upper
+                continue
             # kbd -> uart:
             if event.value == 1 or event.value == 2:
                 if not upper:
