@@ -1,6 +1,11 @@
 import os
 from evdev import InputDevice
 from select import select
+import json
+
+
+with open('key_code2.json') as f:
+    keycode = json.load(f)
 
 
 def detect_input_key(device_name):
@@ -8,10 +13,11 @@ def detect_input_key(device_name):
     while True:
         select([dev], [], [])
         for event in dev.read():
-            try:
-                print("code:%s value:%s char:%s" % (event.code, event.value, chr(event.code)))
-            except Exception as e:
-                print("code:%s value:%s char:%s" % (event.code, event.value, e))
+            print("code:%s value:%s " % (event.code, event.value), end='')
+            if event.code in keycode and len(keycode[event.code]) == 1:
+                print('char:', keycode[event.code])
+            else:
+                print('')
 
 
 def get_device_name():
