@@ -83,7 +83,7 @@ def detect_input_key(device_name):
                 upper = not upper
                 if val == 0:
                     shifted = True
-                else:
+                elif val == 1:
                     shifted = False
                 continue
             if char == 'CAPSLOCK' and val == 1:
