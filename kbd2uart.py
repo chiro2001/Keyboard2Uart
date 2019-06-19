@@ -3,6 +3,8 @@ from evdev import InputDevice
 from select import select
 # import json
 import serial
+import time
+import threading
 
 
 keycode = {"0": "", "1": "\x1b", "2": "1", "3": "2", "4": "3", "5": "4", "6": "5",
@@ -64,9 +66,32 @@ shift_code = {
 # with open('key_code2.json') as f:
 #     keycode = json.load(f)
 
+try_login = False
+
+
+def login_thread():
+    while True:
+        time.sleep(5)
+        com.write('Kbd2Uart OK. Press SPACE to login.\n'.encode())
+        if try_login is True:
+            one_key_login()
+            return
+
+
+def one_key_login():
+    char = 'root'
+    com.write(char.encode())
+    time.sleep(0.5)
+    char = 'orangepi'
+    com.write(char.encode())
+
+
+def config_on_boot():
+
+
 
 def detect_input_key(device_name):
-    global upper, shifted
+    global upper, shifted, try_login
     dev = InputDevice('/dev/input/%s' % device_name)
     while True:
         select([dev], [], [])
@@ -79,6 +104,9 @@ def detect_input_key(device_name):
                 continue
             char = keycode[str(event.code)]
             val = event.value
+            if char == ' ' and val == 1 and try_login is False:
+                try_login = True
+                continue
             if 'shift' in char.lower() and (val == 1 or val == 0):
                 upper = not upper
                 if val == 1:
@@ -121,4 +149,7 @@ def get_device_name():
 
 if __name__ == '__main__':
     print(get_device_name())
+    t_login = threading.Thread(target=login_thread)
+    t_login.setDaemon(True)
+    t_login.start()
     detect_input_key(get_device_name())
