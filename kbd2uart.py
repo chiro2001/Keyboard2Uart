@@ -23,8 +23,10 @@ keycode = {"0": "", "1": "\x1b", "2": "1", "3": "2", "4": "3", "5": "4", "6": "5
         "90": "KATAKANA", "91": "HIRAGANA", "92": "HENKAN", "93": "KATAKANAHIRAGANA",
         "94": "MUHENKAN", "95": "KPJPCOMMA", "96": "KPENTER", "97": "RIGHTCTRL",
         "98": "KPSLASH", "99": "SYSRQ", "100": "RIGHTALT", "101": "LINEFEED",
-        "102": "\x1b\x5b\x31\x7b", "103": "UP", "104": "PAGEUP", "105": "LEFT", "106": "RIGHT",
-        "107": "END", "108": "DOWN", "109": "PAGEDOWN", "110": "INSERT", "111": "DELETE",
+        "102": "\x1b\x5b\x31\x7b", "103": "\x1b\x5b\x41", "104": "\x1b\x5b\x35\x7e", "105": "\x1b\x5b\x44",
+           "106": "\x1b\x5b\x43",
+        "107": "\x1b\x5b\x34\x7e", "108": "\x1b\x5b\x42", "109": "\x1b\x5b\x36\x7e", "110": "INSERT",
+           "111": "\x1b\x5b\x33\x7e",
         "112": "MACRO", "113": "MUTE", "114": "VOLUMEDOWN", "115": "VOLUMEUP",
         "116": "POWER", "117": "KPEQUAL", "118": "KPPLUSMINUS", "119": "PAUSE", "120":
             "SCALE", "121": "KPCOMMA", "122": "HANGEUL", "123": "HANJA", "124": "YEN",
@@ -50,6 +52,11 @@ keycode = {"0": "", "1": "\x1b", "2": "1", "3": "2", "4": "3", "5": "4", "6": "5
 com = serial.Serial('/dev/ttyS2', 115200, timeout=5)
 
 upper = False
+
+shifted = {
+    '`': '~', '1': '!', '2': '@', '3': '#', '4': '$', '5': '%', '6': '^', '7': '&', '8': '*',
+    '9': '(', '0': ')', '-': '_', '=': '+', '[': '{',
+}
 
 
 # with open('key_code2.json') as f:
