@@ -57,6 +57,7 @@ upper = False
 
 
 def detect_input_key(device_name):
+    global upper
     dev = InputDevice('/dev/input/%s' % device_name)
     while True:
         select([dev], [], [])
