@@ -64,13 +64,14 @@ def detect_input_key(device_name):
             if event.code == 0:
                 continue
             print("code:%s value:%s " % (event.code, event.value), end='')
-            if str(event.code) in keycode and len(keycode[event.code]) == 1:
+            if str(event.code) in keycode:
                 print('char:', keycode[str(event.code)])
             else:
                 print('')
                 continue
             # kbd -> uart:
-            com.write(keycode[str(event.code)])
+            if event.value == 1 or event.value == 2:
+                com.write(keycode[str(event.code)].encode())
 
 
 def get_device_name():
