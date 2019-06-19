@@ -87,7 +87,7 @@ def one_key_login():
 
 
 def config_on_boot():
-
+    pass
 
 
 def detect_input_key(device_name):
