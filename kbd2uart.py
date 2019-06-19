@@ -69,11 +69,16 @@ shift_code = {
 try_login = False
 
 
+def write_uart0(string: str):
+    os.system('echo %s >> /dev/ttyS0' % string)
+
+
 def login_thread():
     while True:
         time.sleep(5)
-        com.write('Kbd2Uart OK. Press SPACE to login.\n'.encode())
+        write_uart0('Kbd2Uart OK. Press SPACE to login.')
         if try_login is True:
+            write_uart0('Try to login: root...')
             one_key_login()
             return
 
@@ -149,6 +154,7 @@ def get_device_name():
 
 if __name__ == '__main__':
     print(get_device_name())
+    write_uart0('Use device: %s' % get_device_name())
     t_login = threading.Thread(target=login_thread)
     t_login.setDaemon(True)
     t_login.start()
