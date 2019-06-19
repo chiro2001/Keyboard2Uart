@@ -49,6 +49,8 @@ keycode = {"0": "", "1": "\x1b", "2": "1", "3": "2", "4": "3", "5": "4", "6": "5
 
 com = serial.Serial('/dev/ttyS2', 115200, timeout=5)
 
+upper = False
+
 
 # with open('key_code2.json') as f:
 #     keycode = json.load(f)
@@ -69,9 +71,17 @@ def detect_input_key(device_name):
             else:
                 print('')
                 continue
+            char = keycode[str(event.code)]
+            if 'shift' in char.lower():
+                upper = not upper
+            if char == 'CAPSLOCK':
+                upper = not upper
             # kbd -> uart:
             if event.value == 1 or event.value == 2:
-                com.write(keycode[str(event.code)].encode())
+                if not upper:
+                    com.write(keycode[str(event.code)].lower().encode())
+                else:
+                    com.write(keycode[str(event.code)].encode())
 
 
 def get_device_name():
