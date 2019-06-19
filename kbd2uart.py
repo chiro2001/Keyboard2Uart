@@ -81,9 +81,9 @@ def detect_input_key(device_name):
             val = event.value
             if 'shift' in char.lower() and (val == 1 or val == 0):
                 upper = not upper
-                if val == 0:
+                if val == 1:
                     shifted = True
-                elif val == 1:
+                elif val == 0:
                     shifted = False
                 continue
             if char == 'CAPSLOCK' and val == 1:
