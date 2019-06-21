@@ -13,7 +13,7 @@ keycode = {"0": "", "1": "\x1b", "2": "1", "3": "2", "4": "3", "5": "4", "6": "5
         "20": "T", "21": "Y", "22": "U", "23": "I", "24": "O", "25": "P",
         "26": "LEFTBRACE", "27": "RIGHTBRACE", "28": "\r", "29": "LEFTCTRL",
         "30": "A", "31": "S", "32": "D", "33": "F", "34": "G", "35": "H",
-        "36": "J", "37": "K", "38": "L", "39": ";", "40": "'", "41": "GRAVE",
+        "36": "J", "37": "K", "38": "L", "39": ";", "40": "'", "41": "`",
         "42": "LEFTSHIFT", "43": "\\", "44": "Z", "45": "X", "46": "C",
         "47": "V", "48": "B", "49": "N", "50": "M", "51": ",", "52": ".", "53": "/",
         "54": "RIGHTSHIFT", "55": "KPASTERISK", "56": "LEFTALT", "57": " ", "58": "CAPSLOCK",
@@ -55,12 +55,20 @@ com = serial.Serial('/dev/ttyS2', 115200, timeout=5)
 
 upper = False
 shifted = False
+ctrled = False
 
 shift_code = {
     '`': '~', '1': '!', '2': '@', '3': '#', '4': '$', '5': '%', '6': '^', '7': '&', '8': '*',
     '9': '(', '0': ')', '-': '_', '=': '+', '[': '{', ']': '}', '\\': '|', ';': ':', "'": '"',
     ',': '<', '.': '>', '/': '?'
 }
+
+ctrl_code = {
+    'C': '\x03', 'A': '\x01', 'Z': '\x1A',
+}
+
+
+ignore_code = ['NUMLOCK', 'SCROLLLOCK', 'RIGHTALT', 'LEFTALT']
 
 
 # with open('key_code2.json') as f:
@@ -75,8 +83,11 @@ def write_uart0(string: str):
 
 def login_thread():
     while True:
-        time.sleep(5)
         write_uart0('Kbd2Uart OK. Press SPACE to login.')
+        t = 0
+        while t < 50 and try_login is False:
+            time.sleep(0.1)
+            t += 1
         if try_login is True:
             write_uart0('Try to login: root...')
             one_key_login()
@@ -86,7 +97,7 @@ def login_thread():
 def one_key_login():
     char = 'root\n'
     com.write(char.encode())
-    time.sleep(0.5)
+    time.sleep(0.1)
     char = 'orangepi\n'
     com.write(char.encode())
 
@@ -96,7 +107,7 @@ def config_on_boot():
 
 
 def detect_input_key(device_name):
-    global upper, shifted, try_login
+    global upper, shifted, try_login, ctrled
     dev = InputDevice('/dev/input/%s' % device_name)
     while True:
         select([dev], [], [])
@@ -111,6 +122,12 @@ def detect_input_key(device_name):
             val = event.value
             if char == ' ' and val == 1 and try_login is False:
                 try_login = True
+                continue
+            if 'ctrl' in char.lower() and val == 1:
+                ctrled = True
+                continue
+            if 'ctrl' in char.lower() and val == 0:
+                ctrled = False
                 continue
             if 'shift' in char.lower() and (val == 1 or val == 0):
                 upper = not upper
@@ -130,6 +147,10 @@ def detect_input_key(device_name):
                 continue
             # kbd -> uart:
             if event.value == 1 or event.value == 2:
+                if ctrled:
+                    if char in ctrl_code:
+                        com.write(ctrl_code[char].encode())
+                        continue
                 if not upper:
                     char = char.lower()
                 if shifted and char in shift_code:
