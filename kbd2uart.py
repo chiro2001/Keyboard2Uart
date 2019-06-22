@@ -97,7 +97,7 @@ def login_thread():
 def one_key_login():
     char = 'root\n'
     com.write(char.encode())
-    time.sleep(0.1)
+    time.sleep(0.5)
     char = 'orangepi\n'
     com.write(char.encode())
 
