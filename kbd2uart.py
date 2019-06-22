@@ -120,6 +120,8 @@ def detect_input_key(device_name):
                 continue
             char = keycode[str(event.code)]
             val = event.value
+            if char in ignore_code:
+                continue
             if char == ' ' and val == 1 and try_login is False:
                 try_login = True
                 continue
